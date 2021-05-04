@@ -15,6 +15,8 @@ import io.reactivex.Observable;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import me.pgb.a2021_04_26_room.db.DatabaseOperations;
 import me.pgb.a2021_04_26_room.db.Stock;
 
@@ -34,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "_MainActivity_";
     private Button addStockButton;
     private Button getAllStocksButton;
+    private Button removeStockButton;
+    private Button ChangeStockButton;
     private EditText nameEditText;
     private EditText priceEditText;
     private PortfolioViewModel portfolioViewModel;
@@ -49,8 +53,10 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         addStockButton = findViewById(R.id.insert_stock_button);
+        removeStockButton = findViewById(R.id.delete_stock_button);
         getAllStocksButton = findViewById(R.id.get_all_stocks_button);
         nameEditText = findViewById(R.id.name_text_view);
+        priceEditText = findViewById(R.id.price_text_view);
 
         portfolioViewModel = new ViewModelProvider(this).get(PortfolioViewModel.class);
         allStocks = portfolioViewModel.getAllStocks();
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                                 allStocks.getValue().add(stock);
                             }
                         }
+
                     }
                 });
 
@@ -71,7 +78,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String name = nameEditText.getText().toString();
-                Stock stock = new Stock(name, 0.9);
+                double price = Double.valueOf(priceEditText.getText().toString());
+                Stock stock = new Stock(name, price);
 
 
                 if (isStockInDatabase_faster(stock.name)) {
@@ -156,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                         portfolioViewModel.getPortfolioDatabase().stockDao().delete(stock);
                         break;
                     case UPDATE:
-                        Log.i(TAG, "Update");
+                        portfolioViewModel.getPortfolioDatabase().stockDao().update(stock);
                         break;
                     default:
                         Log.i(TAG, "Default");
